@@ -29,22 +29,17 @@ public class JSONService implements IFileManager {
     }
 
     @Override
-    public String createFile(String fileName, Expanse expanse) {
-        String fullFilePath = buildFilePath(fileName);
-        File originalFile = new File(fullFilePath);
-        File tempFile = new File(fullFilePath + ".tmp");
+    public Long createFile(Expanse expanse, String filePath) {
+        File originalFile = new File(filePath);
+        File tempFile = new File(filePath + ".tmp");
 
         createDirectoryIfNotExists(originalFile.getParentFile());
         JSONArray jsonArray = loadExistingData(originalFile);
-        jsonArray.put(JsonFactory.createJsonObject(expanse));
+        var jsonObject = JsonFactory.createJsonObject(expanse, JSONService.getInstance(), filePath);
+        jsonArray.put(jsonObject);
         writeDataToTempFile(tempFile, jsonArray);
         commitFileTransaction(tempFile, originalFile);
-        return fullFilePath;
-    }
-
-    private String buildFilePath(String fileName) {
-        String userHome = System.getProperty("user.home");
-        return userHome + File.separator + "myAppData" + File.separator + fileName;
+        return jsonObject.getLong("id");
     }
 
     private void createDirectoryIfNotExists(File directory) {

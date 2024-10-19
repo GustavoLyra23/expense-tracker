@@ -9,14 +9,15 @@ import org.example.services.JSONService;
 import org.example.utils.PatternUtil;
 
 import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
+import java.util.regex.Matcher;
 
 public class ExpenseTrackerApplication {
+
+
     public static void main(String[] args) {
         String regex = "add\\s+--description\\s+\"([^\"]+)\"\\s+--amount\\s+(\\d+(\\.\\d+)?)";
         Scanner sc = new Scanner(System.in);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
         IFileManager filePersist = JSONService.getInstance();
         ExpenseService.initialize(filePersist);
         ExpenseService expenseService = ExpenseService.getInstance();
@@ -25,9 +26,8 @@ public class ExpenseTrackerApplication {
         do {
             try {
                 command = sc.nextLine();
-                verifyExitCommand(command);
-                var path = addExpense(command, regex, filePersist);
-                expenseService.findAll(path);
+                String filePath = System.getProperty("user.home") + "/myApp/" + generateFileName();
+                verifyCommand(command, expenseService, filePath, regex, filePersist);
             } catch (FileException | JsonException e) {
                 System.out.println(e.getMessage());
             }
@@ -36,29 +36,41 @@ public class ExpenseTrackerApplication {
 
     }
 
-    private static void verifyExitCommand(String command) {
-        if (command.equalsIgnoreCase("exit")) {
-            System.exit(0);
+    private static void verifyCommand(String command, ExpenseService expenseService, String filePath, String regex, IFileManager filePersist) {
+        switch (command) {
+            case "list":
+                expenseService.findAll(filePath);
+                break;
+            case "exit":
+                System.exit(0);
+                break;
+            case "summary":
+                System.out.println("Total expenses: $" + expenseService.amountTotal(filePath));
+                break;
+            default:
+                if (PatternUtil.regexMatches(command, regex)) {
+                    addExpense(command, regex, filePersist, filePath);
+                } else {
+                    System.out.println("Invalid command");
+                }
         }
     }
 
-    private static String addExpense(String command, String regex, IFileManager filePersist) {
-        String path = "";
-        var matcher = PatternUtil.regex(command, regex);
-        if (!matcher.matches()) {
-            System.out.println("Invalid command");
-        } else {
+    private static void addExpense(String command, String regex, IFileManager filePersist, String filePath) {
+        Matcher matcher = PatternUtil.regex(command, regex);
+        if (matcher.matches()) {
             var expanse = ExpanseFactory.createExpanse(matcher.group(1), matcher.group(2));
-            String fileName = generateFileName();
-            path = filePersist.createFile(fileName, expanse);
-            System.out.println("Expense added successfully (ID:" + expanse.getId() + ")");
+            var id = filePersist.createFile(expanse, filePath);
+            System.out.println("Expense added successfully (ID:" + id + ")");
+        } else {
+            System.out.println("Invalid command");
         }
-        return path;
     }
 
     private static String generateFileName() {
         return "data_" + YearMonth.now();
     }
+
 }
 
 

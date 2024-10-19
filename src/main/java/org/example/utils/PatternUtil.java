@@ -10,5 +10,9 @@ public class PatternUtil {
         return pattern.matcher(command);
     }
 
+    public static boolean regexMatches(String command, String regex) {
+        return regex(command, regex).matches();
+    }
+
 
 }

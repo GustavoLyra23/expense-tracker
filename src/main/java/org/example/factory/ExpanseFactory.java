@@ -8,7 +8,7 @@ import java.time.LocalDate;
 public class ExpanseFactory {
 
     public static Expanse createExpanse(String description, String amount) {
-        return new Expanse(1L, description, new BigDecimal(amount), LocalDate.now());
+        return new Expanse(null, description, new BigDecimal(amount), LocalDate.now());
     }
 
 

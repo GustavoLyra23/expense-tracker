@@ -40,7 +40,10 @@ public class ExpenseService {
         });
     }
 
-
+    public Double amountTotal(String filePath) {
+        var list = fileManager.readFile(filePath);
+        return list.stream().mapToDouble(expanse -> expanse.getAmount().doubleValue()).sum();
+    }
 
 
 
