@@ -1,6 +1,6 @@
 package org.example.factory;
 
-import org.example.model.Expanse;
+import org.example.models.Expanse;
 
 import java.math.BigDecimal;
 import java.time.Instant;
