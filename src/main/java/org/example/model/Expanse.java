@@ -1,5 +1,6 @@
 package org.example.model;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
 
@@ -7,13 +8,13 @@ public class Expanse {
 
     private String id;
     private String description;
-    private Double amount;
+    private BigDecimal amount;
     private Instant date;
 
     public Expanse() {
     }
 
-    public Expanse(String id, String description, Double amount, Instant date) {
+    public Expanse(String id, String description, BigDecimal amount, Instant date) {
         this.id = id;
         this.description = description;
         this.amount = amount;
@@ -36,11 +37,11 @@ public class Expanse {
         this.description = description;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
