@@ -29,18 +29,18 @@ public class JSONService implements IFileManager {
     }
 
     @Override
-    public Long createFile(Expanse expanse, String filePath) {
+    public Long addExpense(Expanse expanse, String filePath) {
         File originalFile = new File(filePath);
         File tempFile = new File(filePath + ".tmp");
-
         createDirectoryIfNotExists(originalFile.getParentFile());
         JSONArray jsonArray = loadExistingData(originalFile);
-        var jsonObject = JsonFactory.createJsonObject(expanse, JSONService.getInstance(), filePath);
+        var jsonObject = JsonFactory.createJsonObjectWithAutoIncrementId(expanse, JSONService.getInstance(), filePath);
         jsonArray.put(jsonObject);
         writeDataToTempFile(tempFile, jsonArray);
         commitFileTransaction(tempFile, originalFile);
         return jsonObject.getLong("id");
     }
+
 
     private void createDirectoryIfNotExists(File directory) {
         if (!directory.exists() && !directory.mkdirs()) {
@@ -99,6 +99,20 @@ public class JSONService implements IFileManager {
             return expanses;
         } catch (IOException e) {
             throw new FileException("Could not read Json File");
+        }
+    }
+
+    @Override
+    public void rewriteFile(List<Expanse> expenses, String filePath) {
+        try (FileWriter writer = new FileWriter(filePath)) {
+            JSONArray jsonArray = new JSONArray();
+            expenses.forEach(expanse -> {
+                var object = JsonFactory.createJsonObjectFromExpense(expanse);
+                jsonArray.put(object);
+            });
+            writer.write(jsonArray.toString(4));
+        } catch (IOException e) {
+            throw new FileException("Could not rewriteFile");
         }
     }
 

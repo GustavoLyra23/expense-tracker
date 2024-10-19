@@ -9,6 +9,7 @@ import org.example.services.JSONService;
 import org.example.utils.PatternUtil;
 
 import java.time.YearMonth;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 
@@ -16,7 +17,10 @@ public class ExpenseTrackerApplication {
 
 
     public static void main(String[] args) {
-        String regex = "add\\s+--description\\s+\"([^\"]+)\"\\s+--amount\\s+(\\d+(\\.\\d+)?)";
+        List<String> regexList = List.of("add\\s+--description\\s+\"([^\"]+)\"\\s+--amount\\s+(\\d+(\\.\\d+)?)",
+                "delete\\s+--id\\s+(\\d+)");
+
+
         Scanner sc = new Scanner(System.in);
         IFileManager filePersist = JSONService.getInstance();
         ExpenseService.initialize(filePersist);
@@ -27,7 +31,7 @@ public class ExpenseTrackerApplication {
             try {
                 command = sc.nextLine();
                 String filePath = System.getProperty("user.home") + "/myApp/" + generateFileName();
-                verifyCommand(command, expenseService, filePath, regex, filePersist);
+                verifyCommand(command, expenseService, filePath, regexList, filePersist);
             } catch (FileException | JsonException e) {
                 System.out.println(e.getMessage());
             }
@@ -36,7 +40,8 @@ public class ExpenseTrackerApplication {
 
     }
 
-    private static void verifyCommand(String command, ExpenseService expenseService, String filePath, String regex, IFileManager filePersist) {
+    private static void verifyCommand(String command, ExpenseService expenseService, String filePath, List<String> regexList, IFileManager filePersist) {
+        command = command.toLowerCase();
         switch (command) {
             case "list":
                 expenseService.findAll(filePath);
@@ -48,8 +53,15 @@ public class ExpenseTrackerApplication {
                 System.out.println("Total expenses: $" + expenseService.amountTotal(filePath));
                 break;
             default:
-                if (PatternUtil.regexMatches(command, regex)) {
-                    addExpense(command, regex, filePersist, filePath);
+                if (PatternUtil.regexMatches(command, regexList.getFirst())) {
+                    addExpense(command, regexList.getFirst(), filePersist, filePath);
+                } else if (PatternUtil.regexMatches(command, regexList.get(1))) {
+                    Matcher matcher = PatternUtil.regex(command, regexList.get(1));
+                    if (matcher.matches()) {
+                        expenseService.deleteExpense(Long.parseLong(matcher.group(1)), filePath);
+                    } else {
+                        System.out.println("Invalid command");
+                    }
                 } else {
                     System.out.println("Invalid command");
                 }
@@ -60,7 +72,7 @@ public class ExpenseTrackerApplication {
         Matcher matcher = PatternUtil.regex(command, regex);
         if (matcher.matches()) {
             var expanse = ExpanseFactory.createExpanse(matcher.group(1), matcher.group(2));
-            var id = filePersist.createFile(expanse, filePath);
+            var id = filePersist.addExpense(expanse, filePath);
             System.out.println("Expense added successfully (ID:" + id + ")");
         } else {
             System.out.println("Invalid command");

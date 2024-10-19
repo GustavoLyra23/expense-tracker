@@ -45,6 +45,17 @@ public class ExpenseService {
         return list.stream().mapToDouble(expanse -> expanse.getAmount().doubleValue()).sum();
     }
 
+    public void deleteExpense(Long id, String filePath) {
+        var list = fileManager.readFile(filePath);
+        boolean value = list.removeIf(expanse -> expanse.getId().equals(id));
+        if (!value) {
+            System.out.println("Expense not found");
+            return;
+        }
+        fileManager.rewriteFile(list, filePath);
+        System.out.println("Expense deleted successfully");
+    }
+
 
 
 }

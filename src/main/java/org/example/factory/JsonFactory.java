@@ -9,7 +9,7 @@ import java.util.List;
 
 public class JsonFactory {
 
-    public static JSONObject createJsonObject(Expanse expanse, IFileManager fileManager, String filePath) {
+    public static JSONObject createJsonObjectWithAutoIncrementId(Expanse expanse, IFileManager fileManager, String filePath) {
         List<Expanse> expenseList;
         JSONObject jsonObject = new JSONObject();
         try {
@@ -31,6 +31,13 @@ public class JsonFactory {
         return jsonObject;
     }
 
-
+    public static JSONObject createJsonObjectFromExpense(Expanse expanse) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", expanse.getId());
+        jsonObject.put("description", expanse.getDescription());
+        jsonObject.put("amount", expanse.getAmount());
+        jsonObject.put("date", expanse.getDate());
+        return jsonObject;
+    }
 
 }

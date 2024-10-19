@@ -6,7 +6,9 @@ import java.util.List;
 
 public interface IFileManager {
 
-    Long createFile(Expanse expanse, String filePath);
+    Long addExpense(Expanse expanse, String filePath);
     List<Expanse> readFile(String filePath);
+
+    void rewriteFile(List<Expanse> expenses, String filePath);
 
 }
