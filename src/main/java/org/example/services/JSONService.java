@@ -5,12 +5,17 @@ import org.example.exceptions.JsonException;
 import org.example.factory.JsonFactory;
 import org.example.models.Expanse;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JSONService implements IFileManager {
 
@@ -24,7 +29,7 @@ public class JSONService implements IFileManager {
     }
 
     @Override
-    public void createFile(String fileName, Expanse expanse) {
+    public String createFile(String fileName, Expanse expanse) {
         String fullFilePath = buildFilePath(fileName);
         File originalFile = new File(fullFilePath);
         File tempFile = new File(fullFilePath + ".tmp");
@@ -34,6 +39,7 @@ public class JSONService implements IFileManager {
         jsonArray.put(JsonFactory.createJsonObject(expanse));
         writeDataToTempFile(tempFile, jsonArray);
         commitFileTransaction(tempFile, originalFile);
+        return fullFilePath;
     }
 
     private String buildFilePath(String fileName) {
@@ -51,7 +57,6 @@ public class JSONService implements IFileManager {
         if (!file.exists()) {
             return new JSONArray();
         }
-
         try {
             String content = new String(Files.readAllBytes(file.toPath()));
             return new JSONArray(content);
@@ -85,4 +90,21 @@ public class JSONService implements IFileManager {
             throw new FileException("Could not delete temporary file");
         }
     }
+
+    @Override
+    public List<Expanse> readFile(String filePath) {
+        try {
+            List<Expanse> expanses = new ArrayList<>();
+            String content = new String(Files.readAllBytes(Paths.get(filePath)));
+            JSONArray jsonArray = new JSONArray(content);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                expanses.add(new Expanse(jsonObject.getLong("id"), jsonObject.getString("description"), jsonObject.getBigDecimal("amount"), LocalDate.parse(jsonObject.getString("date"))));
+            }
+            return expanses;
+        } catch (IOException e) {
+            throw new FileException("Could not read Json File");
+        }
+    }
+
 }

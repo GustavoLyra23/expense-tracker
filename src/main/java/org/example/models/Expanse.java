@@ -1,31 +1,31 @@
 package org.example.models;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Objects;
 
 public class Expanse {
 
-    private String id;
+    private Long id;
     private String description;
     private BigDecimal amount;
-    private Instant date;
+    private LocalDate date;
 
     public Expanse() {
     }
 
-    public Expanse(String id, String description, BigDecimal amount, Instant date) {
+    public Expanse(Long id, String description, BigDecimal amount, LocalDate date) {
         this.id = id;
         this.description = description;
         this.amount = amount;
         this.date = date;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -45,11 +45,11 @@ public class Expanse {
         this.amount = amount;
     }
 
-    public Instant getDate() {
+    public LocalDate getDate() {
         return date;
     }
 
-    public void setDate(Instant date) {
+    public void setDate(LocalDate date) {
         this.date = date;
     }
 
