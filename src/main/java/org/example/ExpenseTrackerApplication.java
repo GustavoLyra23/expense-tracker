@@ -18,7 +18,7 @@ public class ExpenseTrackerApplication {
 
     public static void main(String[] args) {
         List<String> regexList = List.of("add\\s+--description\\s+\"([^\"]+)\"\\s+--amount\\s+(\\d+(\\.\\d+)?)",
-                "delete\\s+--id\\s+(\\d+)");
+                "delete\\s+--id\\s+(\\d+)", "summary\\s+--month\\s+(1[0-2]|0?[1-9])");
 
 
         Scanner sc = new Scanner(System.in);
@@ -59,8 +59,12 @@ public class ExpenseTrackerApplication {
                     Matcher matcher = PatternUtil.regex(command, regexList.get(1));
                     if (matcher.matches()) {
                         expenseService.deleteExpense(Long.parseLong(matcher.group(1)), filePath);
-                    } else {
-                        System.out.println("Invalid command");
+                    }
+                } else if (PatternUtil.regexMatches(command, regexList.get(2))) {
+                    Matcher matcher = PatternUtil.regex(command, regexList.get(2));
+                    if (matcher.matches()) {
+                        var total = expenseService.amountTotal(filePath, Integer.parseInt(matcher.group(1)));
+                        System.out.println("Total expenses: $" + total);
                     }
                 } else {
                     System.out.println("Invalid command");

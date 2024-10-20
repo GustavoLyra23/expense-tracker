@@ -1,5 +1,7 @@
 package org.example.services;
 
+import java.time.Year;
+
 public class ExpenseService {
 
     private final IFileManager fileManager;
@@ -45,6 +47,13 @@ public class ExpenseService {
         return list.stream().mapToDouble(expanse -> expanse.getAmount().doubleValue()).sum();
     }
 
+    public Double amountTotal(String filePath, int month) {
+        var list = fileManager.readFile(filePath);
+        return list.stream().filter(expanse -> expanse.getDate().getMonth().getValue() == month
+                        && expanse.getDate().getYear() == Year.now().getValue())
+                .mapToDouble(expanse -> expanse.getAmount().doubleValue()).sum();
+    }
+
     public void deleteExpense(Long id, String filePath) {
         var list = fileManager.readFile(filePath);
         boolean value = list.removeIf(expanse -> expanse.getId().equals(id));
@@ -55,7 +64,6 @@ public class ExpenseService {
         fileManager.rewriteFile(list, filePath);
         System.out.println("Expense deleted successfully");
     }
-
 
 
 }
